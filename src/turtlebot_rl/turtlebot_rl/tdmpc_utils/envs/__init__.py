@@ -14,13 +14,7 @@ def make_env(cfg):
 	Make an environment for TD-MPC2 experiments.
 	"""
 	gym.logger.min_level = 40
-	env = None
-	try:
-		env = make_tb2_kobuki_env(cfg)
-	except ValueError:
-		pass
-	if env is None:
-		raise ValueError(f'Failed to make environment "{cfg.task}": please verify that dependencies are installed and that the task exists.')
+	env = make_tb2_kobuki_env(cfg)
 	env = TensorWrapper(env)
 	try: # Dict
 		cfg.obs_shape = {k: v.shape for k, v in env.observation_space.spaces.items()}

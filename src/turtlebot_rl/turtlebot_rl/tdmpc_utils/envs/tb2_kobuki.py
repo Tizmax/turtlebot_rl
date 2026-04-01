@@ -22,7 +22,7 @@ import gymnasium as gym
 from envs.wrappers.timeout import Timeout
 
 _ASSETS_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "assets", "kobuki_tb2")
+    os.path.join(os.path.dirname(__file__), "..", "common", "assets", "kobuki_tb2")
 )
 _SCENE_XML = os.path.join(_ASSETS_DIR, "scene.xml")
 
