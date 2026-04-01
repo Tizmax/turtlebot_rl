@@ -1,3 +1,0 @@
-[console_scripts]
-experiment_runner = turtlebot_rl.experiment_runner:main
-goto = turtlebot_rl.goto:main
