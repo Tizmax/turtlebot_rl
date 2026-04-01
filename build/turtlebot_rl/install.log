@@ -2,6 +2,7 @@
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/goto.py
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/TDMPC2Controller.py
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/__init__.py
+/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/experiment_runner.py
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/tdmpc_utils/tdmpc2.py
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/tdmpc_utils/__init__.py
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/tdmpc_utils/common/seed.py
@@ -143,6 +144,7 @@
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/__pycache__/goto.cpython-312.pyc
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/__pycache__/TDMPC2Controller.cpython-312.pyc
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/__pycache__/__init__.cpython-312.pyc
+/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/__pycache__/experiment_runner.cpython-312.pyc
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/tdmpc_utils/__pycache__/tdmpc2.cpython-312.pyc
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/tdmpc_utils/__pycache__/__init__.cpython-312.pyc
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/tdmpc_utils/common/__pycache__/seed.cpython-312.pyc
@@ -165,6 +167,7 @@
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/tdmpc_utils/envs/install/__pycache__/_local_setup_util_sh.cpython-312.pyc
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/share/ament_index/resource_index/packages/turtlebot_rl
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/share/turtlebot_rl/package.xml
+/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/share/turtlebot_rl/experiment.launch.py
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl-0.0.0-py3.12.egg-info/entry_points.txt
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl-0.0.0-py3.12.egg-info/dependency_links.txt
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl-0.0.0-py3.12.egg-info/top_level.txt
@@ -172,4 +175,5 @@
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl-0.0.0-py3.12.egg-info/requires.txt
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl-0.0.0-py3.12.egg-info/zip-safe
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl-0.0.0-py3.12.egg-info/SOURCES.txt
+/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/turtlebot_rl/experiment_runner
 /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/turtlebot_rl/goto
