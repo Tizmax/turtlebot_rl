@@ -18,7 +18,7 @@ setup(
         "turtlebot_rl": [
             "tdmpc_utils/*.yaml",
             "tdmpc_utils/*.pt",
-            "tdmpc_utils/assets/**/*",
+            "tdmpc_utils/common/assets/**/*",
             "tdmpc_utils/envs/**/*",
         ],
     },
