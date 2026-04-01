@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: turtlebot-rl
+Version: 0.0.0
+Summary: TODO: Package description
+Maintainer: Matthis Bernardini
+Maintainer-email: matthis.bernardini@gmail.com
+License: TODO: License declaration
+Provides-Extra: test
