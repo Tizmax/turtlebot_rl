@@ -32,7 +32,7 @@ class PIDGoToController:
             math.sin(angle_to_goal - theta), math.cos(angle_to_goal - theta)
         )
 
-        if distance_error < 0.03:  # tightened threshold
+        if distance_error < 0.15:
             return 0.0, 0.0
 
         w = self.pid_w.compute(angle_error, self.dt)

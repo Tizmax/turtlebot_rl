@@ -1,0 +1,23 @@
+[0.853s] Invoking command in '/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl': CONDA_PROMPT_MODIFIER=(tdmpc2_312) DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/turtlebot_rl build --build-base /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/build install --record /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/install.log --single-version-externally-managed install_data
+[1.095s] running egg_info
+[1.115s] writing build/turtlebot_rl/turtlebot_rl.egg-info/PKG-INFO
+[1.117s] writing dependency_links to build/turtlebot_rl/turtlebot_rl.egg-info/dependency_links.txt
+[1.119s] writing entry points to build/turtlebot_rl/turtlebot_rl.egg-info/entry_points.txt
+[1.120s] writing requirements to build/turtlebot_rl/turtlebot_rl.egg-info/requires.txt
+[1.121s] writing top-level names to build/turtlebot_rl/turtlebot_rl.egg-info/top_level.txt
+[1.183s] reading manifest file 'build/turtlebot_rl/turtlebot_rl.egg-info/SOURCES.txt'
+[1.187s] writing manifest file 'build/turtlebot_rl/turtlebot_rl.egg-info/SOURCES.txt'
+[1.188s] running build
+[1.189s] running build_py
+[1.206s] copying turtlebot_rl/tdmpc_utils/config.yaml -> /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/build/lib/turtlebot_rl/tdmpc_utils
+[1.251s] running install
+[1.256s] running install_lib
+[1.286s] copying /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/build/lib/turtlebot_rl/tdmpc_utils/config.yaml -> /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl/tdmpc_utils
+[1.292s] running install_data
+[1.293s] running install_egg_info
+[1.313s] removing '/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl-0.0.0-py3.12.egg-info' (and everything under it)
+[1.316s] Copying build/turtlebot_rl/turtlebot_rl.egg-info to /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages/turtlebot_rl-0.0.0-py3.12.egg-info
+[1.338s] running install_scripts
+[1.466s] Installing goto script to /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/turtlebot_rl
+[1.471s] writing list of installed files to '/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/install.log'
+[1.491s] Invoked command in '/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl' returned '0': CONDA_PROMPT_MODIFIER=(tdmpc2_312) DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PYTHONPATH=/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/install/turtlebot_rl/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/turtlebot_rl build --build-base /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/build install --record /home/GTL/aghitu/CS8813/tdmpc/turtlebot_rl/build/turtlebot_rl/install.log --single-version-externally-managed install_data
