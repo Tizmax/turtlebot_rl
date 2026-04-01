@@ -1,0 +1,14 @@
+source /opt/ros/humble/setup.bash
+export CYCLONEDDS_URI=/opt/turtlebot_ws/src/turtlebot_launch/config/turtlebot_cyclonedds.xml
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export ROS_DOMAIN_ID="$((1${HOSTNAME#turtlebot}-100))"
+export ROS_PARALLEL_JOBS=-j1
+export MAKEFLAGS="-j 1"
+alias colcon_build='colcon build --executor sequential --symlink-install'
+source /usr/share/colcon_cd/function/colcon_cd.sh
+source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+export _colcon_cd_root=/opt/ros/humble
+export COLCON_EXTENSION_BLOCKLIST=colcon_core.event_handler.desktop_notification
+
+
+

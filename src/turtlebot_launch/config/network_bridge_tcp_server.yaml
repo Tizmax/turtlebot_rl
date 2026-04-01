@@ -1,0 +1,35 @@
+# See Udp1.yaml for parameter descriptions
+/**/*:
+  ros__parameters:
+    network_interface: "network_bridge::TcpInterface"
+
+    TcpInterface:
+      role: "server" # "client" or "server"
+      port: 5000 # Desired port to listen on
+
+    default_rate: 2.0
+
+    default_zstd_level: 3
+
+    publish_stale_data: False
+
+    topics:
+      - "/astra/color/camera_info"
+      - "/astra/color/image_raw"
+      # - "/astra/depth/image_raw"
+      - "/astra/depth/points"
+      # - "/astra/depth/color/points"
+      - "/tf"
+      - "/tf_static"
+
+    /tf:
+      rate: 20.0
+      is_tf: True
+
+    /tf_static:
+      rate: 1.0
+      is_tf: True
+      exclude: ["standoff.*", "spacer.*", ".*wheel_link", ".*cliff.*"]
+
+    subscribe_namespace: ""
+    publish_namespace: ""

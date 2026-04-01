@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot name="xacro_properties" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:property name="turtlebot_calib_cam_x" value="-0.0844382" />
+  <!-- <xacro:property name="turtlebot_calib_cam_x" value="0.13" /> -->
+  <xacro:property name="turtlebot_calib_cam_y" value="0" />
+  <xacro:property name="turtlebot_calib_cam_z" value="0.1047496" />
+       <!-- <xacro:property name="turtlebot_calib_cam_z" value="0" /> -->
+  <xacro:property name="turtlebot_calib_cam_rr" value="0" />
+  <xacro:property name="turtlebot_calib_cam_rp" value="0" />
+       <!-- <xacro:property name="turtlebot_calib_cam_rp" value="-0.523599" /> -->
+  <xacro:property name="turtlebot_calib_cam_ry" value="0" />
+  <xacro:property name="turtlebot_camera_parent_name" value="plate_2_link" />
+  <!-- <xacro:property name="turtlebot_camera_parent_name" value="plate_3_link" /> -->
+
+</robot>
