@@ -9,3 +9,4 @@ logs/
 .colcon_install_layout
 *.pdf
 *.gv
+*.csv
