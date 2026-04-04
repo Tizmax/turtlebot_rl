@@ -8,6 +8,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import Odometry
 from std_msgs.msg import String
+from visualization_msgs.msg import Marker
 
 import tf2_ros
 
@@ -37,6 +38,7 @@ class GoToNode(Node):
         # ---- Publishers / Subscribers ----
         self.cmd_pub = self.create_publisher(Twist, cmd_topic, 10)
         self.result_pub = self.create_publisher(String, "/goto/result", 10)
+        self.marker_pub = self.create_publisher(Marker, "/goto/goal_marker", 10)
         self.odom_sub = self.create_subscription(
             Odometry, "/odom", self.odom_callback, 10
         )
@@ -110,6 +112,26 @@ class GoToNode(Node):
         self.prev_y = self.y
 
         self._open_csv_log()
+
+        # Publish goal marker as a cylinder
+        marker = Marker()
+        marker.header = msg.header
+        marker.ns = "goal"
+        marker.id = 0
+        marker.type = Marker.CYLINDER
+        marker.action = Marker.ADD
+        marker.pose.position.x = msg.pose.position.x
+        marker.pose.position.y = msg.pose.position.y
+        marker.pose.position.z = 0.0
+        marker.pose.orientation.w = 1.0
+        marker.scale.x = 0.30  # diameter = 2 * 0.15m radius
+        marker.scale.y = 0.30
+        marker.scale.z = 0.05
+        marker.color.r = 0.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+        marker.color.a = 0.8
+        self.marker_pub.publish(marker)
 
         self.get_logger().info(
             f"New goal received: ({self.x_goal:.2f}, {self.y_goal:.2f})"
