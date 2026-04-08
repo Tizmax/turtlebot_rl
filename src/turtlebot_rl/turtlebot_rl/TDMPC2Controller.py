@@ -42,7 +42,7 @@ class TDMPC2GoToController:
 
         base = os.path.dirname(os.path.abspath(__file__))
         if model_path is None:
-            model_path = os.path.join(base, "tdmpc_utils", "150034.pt")
+            model_path = os.path.join(base, "tdmpc_utils", "final.pt")
             print(model_path)
         if config_path is None:
             config_path = os.path.join(base, "tdmpc_utils", "config.yaml")
