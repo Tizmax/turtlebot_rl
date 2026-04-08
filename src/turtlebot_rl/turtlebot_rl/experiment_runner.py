@@ -25,7 +25,7 @@ class ExperimentRunner(Node):
         super().__init__("experiment_runner")
 
         # ---- Parameters ----
-        self.declare_parameter("goals", "0.5,0.5; 1.0,0.0; 0.0,1.0")
+        self.declare_parameter("goals", "2.40,0.60; 4.50,0.80; 6.0,1.80; 7.61,2.77; 8.95,3.50; 9.15,5.77; 8.84,7.99; 7.15,6.67")
         self.declare_parameter("repeats", 1)
         self.declare_parameter("settle_time", 3.0)  # pause between trials
         self.declare_parameter("experiment_name", "experiment")
@@ -76,7 +76,7 @@ class ExperimentRunner(Node):
         self.num_base_goals = len(base_goals)
 
         # Delay initial goal to let goto node settle
-        self._startup_timer = self.create_timer(2.0, self._send_first_goal)
+        self._startup_timer = self.create_timer(5.0, self._send_first_goal)
 
         self.get_logger().info(
             f"Experiment '{experiment_name}': "
