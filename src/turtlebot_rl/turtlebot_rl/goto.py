@@ -10,10 +10,9 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import String
 from visualization_msgs.msg import Marker
 
-import tf2_ros
-
 from turtlebot_rl.TDMPC2Controller import TDMPC2GoToController
 from turtlebot_rl.PIDController import PIDGoToController
+from turtlebot_rl.PPOController import PPOGoToController
 
 
 class GoToNode(Node):
@@ -21,7 +20,7 @@ class GoToNode(Node):
         super().__init__("goto_node")
 
         # ---- ROS2 parameters ----
-        self.declare_parameter("controller", "tdmpc2")  # "tdmpc2" or "pid"
+        self.declare_parameter("controller", "tdmpc2")  # "tdmpc2", "pid", or "ppo"
         self.declare_parameter("goal_timeout", 60.0)     # seconds
         self.declare_parameter("log_dir", "")            # CSV log directory
         self.declare_parameter("cmd_topic", "/mux/autoCommand")
@@ -30,10 +29,6 @@ class GoToNode(Node):
         self.goal_timeout = self.get_parameter("goal_timeout").value
         log_dir = self.get_parameter("log_dir").value
         cmd_topic = self.get_parameter("cmd_topic").value
-
-        # ---- TF2 for SLAM-corrected pose (map -> base_footprint) ----
-        self.tf_buffer = tf2_ros.Buffer()
-        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
         # ---- Publishers / Subscribers ----
         self.cmd_pub = self.create_publisher(Twist, cmd_topic, 10)
@@ -53,17 +48,19 @@ class GoToNode(Node):
         # ---- Controller ----
         if ctrl_name == "pid":
             self.controller = PIDGoToController(dt=self.dt)
+        elif ctrl_name == "ppo":
+            self.controller = PPOGoToController(dt=self.dt)
         else:
             self.controller = TDMPC2GoToController(dt=self.dt)
         self.ctrl_name = ctrl_name
 
-        # ---- Robot state (from SLAM for pose, from odom for velocities) ----
+        # ---- Robot state (from odometry) ----
         self.x = 0.0
         self.y = 0.0
         self.theta = 0.0
         self.v_actual = 0.0
         self.w_actual = 0.0
-        self.pose_valid = False  # True once first TF lookup succeeds
+        self.pose_valid = False  # True once first odom message received
 
         # ---- Goal state ----
         self.x_goal = None
@@ -85,7 +82,7 @@ class GoToNode(Node):
 
         self.get_logger().info(
             f"GoTo node ready  [controller={ctrl_name}]. "
-            f"Publish goals to /goal_pose (map frame)."
+            f"Publish goals to /goal_pose (odom frame)."
         )
 
     # ------------------------------------------------------------------
@@ -98,9 +95,14 @@ class GoToNode(Node):
         return math.atan2(t3, t4)
 
     def odom_callback(self, msg):
-        # Velocities from odom (local, no drift)
+        # Pose and velocities from odometry
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
+        q = msg.pose.pose.orientation
+        self.theta = self.quaternion_to_yaw(q.x, q.y, q.z, q.w)
         self.v_actual = msg.twist.twist.linear.x
         self.w_actual = msg.twist.twist.angular.z
+        self.pose_valid = True
 
     def goal_callback(self, msg):
         self.x_goal = msg.pose.position.x
@@ -145,23 +147,8 @@ class GoToNode(Node):
         if not self.goal_active:
             return
 
-        # Pose from SLAM via tf2 (map -> base_link)
-        try:
-            tf = self.tf_buffer.lookup_transform(
-                "map", "base_link", rclpy.time.Time()
-            )
-            self.x = tf.transform.translation.x
-            self.y = tf.transform.translation.y
-            q = tf.transform.rotation
-            self.theta = self.quaternion_to_yaw(q.x, q.y, q.z, q.w)
-            self.pose_valid = True
-        except (tf2_ros.LookupException,
-                tf2_ros.ConnectivityException,
-                tf2_ros.ExtrapolationException):
-            pass  # Use last known pose
-
         if not self.pose_valid:
-            return  # SLAM not ready yet
+            return  # Waiting for first odom message
 
         # Accumulate path length
         if self.prev_x is not None:

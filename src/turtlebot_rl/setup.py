@@ -20,6 +20,7 @@ setup(
             "tdmpc_utils/*.pt",
             "tdmpc_utils/common/assets/**/*",
             "tdmpc_utils/envs/**/*",
+            "ppo/*.pt",
         ],
     },
     install_requires=["setuptools"],
