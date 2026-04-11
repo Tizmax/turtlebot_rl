@@ -10,49 +10,30 @@ import numpy as np
 import pandas as pd
 
 
-OUTPUT_DIR = os.path.dirname(__file__)
-EXPERIMENT_NAME = "10g+noise"
-FILE_TEMPLATE = "outputs/{exp_name}_{agent}_goal_{goal_number}_positions.csv"
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "outputs")
+EXPERIMENT_NAME = "bagtest"
+FILE_TEMPLATE = "{exp_name}_{agent}_goal_{goal_number}.csv"
 
 
 def _discover_agents_and_goals(exp_name):
     """
-    Scan outputs/ directory for files matching {exp_name}_{agent}_goal_{goal_number}_positions.csv.
-    Also handles legacy pattern: {agent}_goal_{goal_number}_positions.csv
+    Scan outputs/ directory for files matching {exp_name}_{agent}_goal_{goal_number}.csv.
     Returns:
       agents: sorted list of unique agent names
       goal_data: dict mapping agent -> sorted list of goal numbers
     """
     agent_goal_pairs = set()
     
-    # Try pattern 1: outputs/{exp_name}_{agent}_goal_{goal_number}_positions.csv
-    outputs_dir = os.path.join(OUTPUT_DIR, "outputs")
-    pattern1 = os.path.join(outputs_dir, f"{exp_name}_*_goal_*_positions.csv")
-    files = glob.glob(pattern1)
-    regex1 = rf"{re.escape(exp_name)}_([a-zA-Z0-9_]+)_goal_(\d+)_positions\.csv"
+    pattern = os.path.join(OUTPUT_DIR, f"{exp_name}_*_goal_*.csv")
+    files = glob.glob(pattern)
+    regex = rf"{re.escape(exp_name)}_([a-zA-Z0-9_]+)_goal_(\d+)\.csv"
     
     for filepath in files:
         filename = os.path.basename(filepath)
-        match = re.match(regex1, filename)
+        match = re.match(regex, filename)
         if match:
             agent, goal_number = match.groups()
             agent_goal_pairs.add((agent, int(goal_number)))
-    
-    # If no files found, try legacy pattern: outputs/{agent}_goal_{goal_number}_positions.csv
-    if not agent_goal_pairs:
-        pattern2 = os.path.join(outputs_dir, "*_goal_*_positions.csv")
-        files = glob.glob(pattern2)
-        regex2 = r"([a-zA-Z0-9_]+)_goal_(\d+)_positions\.csv"
-        
-        for filepath in files:
-            filename = os.path.basename(filepath)
-            # Exclude files that start with exp_name (e.g., experiment_goal_1 which have no agent)
-            if filename.startswith(f"{exp_name}_goal_"):
-                continue
-            match = re.match(regex2, filename)
-            if match:
-                agent, goal_number = match.groups()
-                agent_goal_pairs.add((agent, int(goal_number)))
     
     # Organize by agent
     agent_goal_map = {}
@@ -69,9 +50,9 @@ def _discover_agents_and_goals(exp_name):
     return agents, agent_goal_map
 
 
-def _load_one_csv(path, exp_name=None, agent=None, goal_number=None):
+def _load_one_csv(path):
     """
-    Load CSV file. If path doesn't exist, try legacy naming pattern.
+    Load CSV file with required columns.
     """
     if os.path.exists(path):
         df = pd.read_csv(path, sep=";")
@@ -81,18 +62,6 @@ def _load_one_csv(path, exp_name=None, agent=None, goal_number=None):
             print(f"[WARN] {path} missing columns: {sorted(missing)}")
             return None
         return df
-    
-    # Try legacy pattern if provided
-    if exp_name and agent and goal_number is not None:
-        legacy_path = os.path.join(os.path.dirname(path), f"{agent}_goal_{goal_number}_positions.csv")
-        if os.path.exists(legacy_path):
-            df = pd.read_csv(legacy_path, sep=";")
-            required = {"x", "y", "x_goal", "y_goal"}
-            missing = required.difference(df.columns)
-            if missing:
-                print(f"[WARN] {legacy_path} missing columns: {sorted(missing)}")
-                return None
-            return df
     
     print(f"[WARN] Missing file: {path}")
     return None
@@ -121,7 +90,7 @@ def _get_color_from_goal(goal_number, colormap_name="viridis", num_goals=None):
 agents, goal_data = _discover_agents_and_goals(EXPERIMENT_NAME)
 
 if not agents:
-    print(f"[ERROR] No files found matching pattern: {EXPERIMENT_NAME}_*_goal_*_positions.csv")
+    print(f"[ERROR] No files found matching pattern: {EXPERIMENT_NAME}_*_goal_*.csv in outputs/")
     exit(1)
 
 # Calculate all unique goal numbers across all agents for consistent colormap normalization
@@ -157,7 +126,7 @@ for ax, agent in zip(axes_flat[:num_agents], agents):
             goal_number=goal_number
         )
         csv_path = os.path.join(OUTPUT_DIR, csv_name)
-        df = _load_one_csv(csv_path, exp_name=EXPERIMENT_NAME, agent=agent, goal_number=goal_number)
+        df = _load_one_csv(csv_path)
         if df is None or df.empty:
             continue
 
@@ -181,7 +150,7 @@ for ax in axes_flat[num_agents:]:
 fig.suptitle("Agent Trajectories & Goals", fontsize=16, fontweight="bold")
 plt.tight_layout()
 
-save_path = os.path.join(OUTPUT_DIR, "trajectories.png")
+save_path = os.path.join(OUTPUT_DIR, f"{EXPERIMENT_NAME}_trajectories.png")
 plt.savefig(save_path, dpi=150)
 print(f"Saved to {save_path}")
 print(f"\nDiscovered agents: {agents}")
