@@ -3,13 +3,13 @@ import torch
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "tdmpc_utils"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "ppo_utils"))
 
 try:
-    from tdmpc2 import TDMPC2
+    from ppo_agent import PPOAgent
     from envs import make_env
 except ImportError:
-    from turtlebot_rl.tdmpc_utils.tdmpc2 import TDMPC2
+    from turtlebot_rl.ppo_utils.ppo_agent import PPOAgent
     from turtlebot_rl.tdmpc_utils.envs import make_env
 
 from omegaconf import OmegaConf
@@ -18,31 +18,34 @@ import hydra
 from hydra import compose, initialize_config_dir
 
 
-class TDMPC2GoToController:
+
+class PPOGoToController:
     """
-    Deploys a TD-MPC2 policy trained in the TB2KobukiGoToEnv on the real robot.
+    Deploys a PPO policy trained in the TB2KobukiGoToEnv on the real robot.
 
     The agent outputs actions in [-1, 1] (tanh-bounded). We scale them by the
     same constants the training env uses so the physical twist matches what the
-    agent experienced during training. No additional clipping is needed.
+    agent experienced during training.
+
+    Best checkpoint: ppo-v2, step 550k
+        /home/GTL/asave/ppo_logs/tb2-kobuki-goto/1/ppo-v2/models/550000.pt
     """
 
     # Must match TB2KobukiGoToEnv exactly
-    _WHEEL_RADIUS = 0.035  # metres
-    _WHEELBASE = 0.230  # metres
-    _MAX_WHEEL_VEL = 20.0  # rad/s
-    # _V_LINEAR_MAX = _WHEEL_RADIUS * _MAX_WHEEL_VEL  # 0.7 m/s
-    _V_LINEAR_MAX = 0.22
-    # _OMEGA_MAX = 2.0 * _WHEEL_RADIUS * _MAX_WHEEL_VEL / _WHEELBASE  # ≈6.09 rad/s
-    _OMEGA_MAX = 2.84 
-    _SUCCESS_THRESH = 0.15  # metres
+    _WHEEL_RADIUS   = 0.035   # metres
+    _WHEELBASE      = 0.230   # metres
+    _MAX_WHEEL_VEL  = 20.0    # rad/s
+    _V_LINEAR_MAX   = 0.22    # m/s  (real robot limit)
+    _OMEGA_MAX      = 2.84    # rad/s (real robot limit)
+    _SUCCESS_THRESH = 0.15    # metres — hard stop inside this radius
 
     def __init__(self, dt, model_path=None, config_path=None):
         self.dt = dt
+        self.is_first_step = True
 
         base = os.path.dirname(os.path.abspath(__file__))
         if model_path is None:
-            model_path = os.path.join(base, "tdmpc_utils", "600046.pt")
+            model_path = os.path.join(base, "ppo", "ppo.pt")
             print(model_path)
         if config_path is None:
             config_path = os.path.join(base, "tdmpc_utils", "config.yaml")
@@ -65,17 +68,18 @@ class TDMPC2GoToController:
         hydra.utils.get_original_cwd = lambda: os.getcwd()
         cfg = parse_cfg(cfg)
 
-        # make_env populates cfg fields (obs/action dims, etc.) that TDMPC2 needs
+        # make_env populates cfg fields (obs/action dims, etc.) that PPOAgent needs
         env = make_env(cfg)
         del env
 
-        cfg.compile = False
-        print("Initialising TD-MPC2 agent...")
-        self.agent = TDMPC2(cfg)
-        self.agent.load(model_path)
-        self.agent.model.eval()
-        print("TD-MPC2 model ready.")
+        print("Initialising PPO agent...")
+        self.agent = PPOAgent(cfg).to("cuda")
+        self.agent.load(model_path, device="cuda")
+        self.agent.eval()
+        print("PPO model ready.")
 
+    def reset(self):
+        """Call at the start of each new navigation goal."""
         self.is_first_step = True
 
     def get_action(self, obs):
@@ -86,18 +90,21 @@ class TDMPC2GoToController:
         Returns:
             (v_cmd, w_cmd) in physical units (m/s, rad/s)
         """
-        dist = obs[4]
+        dist = float(obs[4])
 
         if dist < self._SUCCESS_THRESH:
             self.is_first_step = True
             return 0.0, 0.0
 
-        t_obs = torch.tensor(obs, dtype=torch.float32)
-        action = self.agent.act(t_obs, t0=self.is_first_step)
+        obs_t = torch.tensor(obs, dtype=torch.float32).unsqueeze(0).to("cuda")
+        with torch.no_grad():
+            action = self.agent.act(obs_t, eval_mode=True)  # CPU tensor in [-1, 1]
         self.is_first_step = False
 
-        v = float(action[0])# * self._V_LINEAR_MAX
-        w = float(action[1])# * self._OMEGA_MAX
+        v = float(action[0]) * self._V_LINEAR_MAX
+        w = float(action[1]) * self._OMEGA_MAX
 
-        return np.clip(v, -self._V_LINEAR_MAX, self._V_LINEAR_MAX), np.clip(w, -self._OMEGA_MAX, self._OMEGA_MAX)
-
+        return (
+            float(np.clip(v, -self._V_LINEAR_MAX, self._V_LINEAR_MAX)),
+            float(np.clip(w, -self._OMEGA_MAX,    self._OMEGA_MAX)),
+        )

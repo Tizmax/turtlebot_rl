@@ -8,11 +8,11 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist, PoseStamped
 from nav_msgs.msg import Odometry
 from std_msgs.msg import String
-
-import tf2_ros
+from visualization_msgs.msg import Marker
 
 from turtlebot_rl.TDMPC2Controller import TDMPC2GoToController
 from turtlebot_rl.PIDController import PIDGoToController
+from turtlebot_rl.PPOController import PPOGoToController
 
 
 class GoToNode(Node):
@@ -20,7 +20,7 @@ class GoToNode(Node):
         super().__init__("goto_node")
 
         # ---- ROS2 parameters ----
-        self.declare_parameter("controller", "pid")  # "tdmpc2" or "pid"
+        self.declare_parameter("controller", "tdmpc2")  # "tdmpc2", "pid", or "ppo"
         self.declare_parameter("goal_timeout", 60.0)     # seconds
         self.declare_parameter("log_dir", "")            # CSV log directory
         self.declare_parameter("cmd_topic", "/mux/autoCommand")
@@ -30,13 +30,10 @@ class GoToNode(Node):
         log_dir = self.get_parameter("log_dir").value
         cmd_topic = self.get_parameter("cmd_topic").value
 
-        # ---- TF2 for SLAM-corrected pose (map -> base_footprint) ----
-        self.tf_buffer = tf2_ros.Buffer()
-        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
-
         # ---- Publishers / Subscribers ----
         self.cmd_pub = self.create_publisher(Twist, cmd_topic, 10)
         self.result_pub = self.create_publisher(String, "/goto/result", 10)
+        self.marker_pub = self.create_publisher(Marker, "/goto/goal_marker", 10)
         self.odom_sub = self.create_subscription(
             Odometry, "/odom", self.odom_callback, 10
         )
@@ -51,17 +48,19 @@ class GoToNode(Node):
         # ---- Controller ----
         if ctrl_name == "pid":
             self.controller = PIDGoToController(dt=self.dt)
+        elif ctrl_name == "ppo":
+            self.controller = PPOGoToController(dt=self.dt)
         else:
             self.controller = TDMPC2GoToController(dt=self.dt)
         self.ctrl_name = ctrl_name
 
-        # ---- Robot state (from SLAM for pose, from odom for velocities) ----
+        # ---- Robot state (from odometry) ----
         self.x = 0.0
         self.y = 0.0
         self.theta = 0.0
         self.v_actual = 0.0
         self.w_actual = 0.0
-        self.pose_valid = False  # True once first TF lookup succeeds
+        self.pose_valid = False  # True once first odom message received
 
         # ---- Goal state ----
         self.x_goal = None
@@ -83,7 +82,7 @@ class GoToNode(Node):
 
         self.get_logger().info(
             f"GoTo node ready  [controller={ctrl_name}]. "
-            f"Publish goals to /goal_pose (map frame)."
+            f"Publish goals to /goal_pose (odom frame)."
         )
 
     # ------------------------------------------------------------------
@@ -96,9 +95,14 @@ class GoToNode(Node):
         return math.atan2(t3, t4)
 
     def odom_callback(self, msg):
-        # Velocities from odom (local, no drift)
+        # Pose and velocities from odometry
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
+        q = msg.pose.pose.orientation
+        self.theta = self.quaternion_to_yaw(q.x, q.y, q.z, q.w)
         self.v_actual = msg.twist.twist.linear.x
         self.w_actual = msg.twist.twist.angular.z
+        self.pose_valid = True
 
     def goal_callback(self, msg):
         self.x_goal = msg.pose.position.x
@@ -110,6 +114,27 @@ class GoToNode(Node):
         self.prev_y = self.y
 
         self._open_csv_log()
+
+        # Publish goal marker as a cylinder
+        marker = Marker()
+        marker.header.frame_id = "odom"  # Explicit frame for odom-based goals
+        marker.header.stamp = self.get_clock().now().to_msg()
+        marker.ns = "goal"
+        marker.id = 0
+        marker.type = Marker.CYLINDER
+        marker.action = Marker.ADD
+        marker.pose.position.x = msg.pose.position.x
+        marker.pose.position.y = msg.pose.position.y
+        marker.pose.position.z = 0.0
+        marker.pose.orientation.w = 1.0
+        marker.scale.x = 0.30  # diameter = 2 * 0.15m radius
+        marker.scale.y = 0.30
+        marker.scale.z = 0.05
+        marker.color.r = 0.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+        marker.color.a = 0.8
+        self.marker_pub.publish(marker)
 
         self.get_logger().info(
             f"New goal received: ({self.x_goal:.2f}, {self.y_goal:.2f})"
@@ -123,23 +148,8 @@ class GoToNode(Node):
         if not self.goal_active:
             return
 
-        # Pose from SLAM via tf2 (map -> base_link)
-        try:
-            tf = self.tf_buffer.lookup_transform(
-                "map", "base_link", rclpy.time.Time()
-            )
-            self.x = tf.transform.translation.x
-            self.y = tf.transform.translation.y
-            q = tf.transform.rotation
-            self.theta = self.quaternion_to_yaw(q.x, q.y, q.z, q.w)
-            self.pose_valid = True
-        except (tf2_ros.LookupException,
-                tf2_ros.ConnectivityException,
-                tf2_ros.ExtrapolationException):
-            pass  # Use last known pose
-
         if not self.pose_valid:
-            return  # SLAM not ready yet
+            return  # Waiting for first odom message
 
         # Accumulate path length
         if self.prev_x is not None:

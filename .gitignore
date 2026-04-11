@@ -9,3 +9,6 @@ logs/
 .colcon_install_layout
 *.pdf
 *.gv
+
+bags/
+outputs/

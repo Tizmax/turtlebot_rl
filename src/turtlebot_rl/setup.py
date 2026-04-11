@@ -36,7 +36,10 @@ setup(
     entry_points={
         "console_scripts": [
             "goto = turtlebot_rl.goto:main",
+            "goto_odom = turtlebot_rl.goto_odom:main",
             "experiment_runner = turtlebot_rl.experiment_runner:main",
+            "experiment_metrics = turtlebot_rl.experiment_metrics:main",
+            "experiment_metrics_bagloop = turtlebot_rl.experiment_metrics_bagloop:main",
         ],
     },
 )
